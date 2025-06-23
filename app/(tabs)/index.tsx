@@ -17,23 +17,38 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<RNFlatList<Message>>(null);
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => { // Make sendMessage async
     if (inputText.trim()) {
       setMessages((prevMessages: Message[]) => [
         ...prevMessages,
         { id: Date.now().toString(), text: inputText.trim(), sender: 'user' },
       ]);
       setInputText('');
-      // Simulate a reply after a short delay
-      setTimeout(() => {
+      // Send message to backend
+      try {
+        const response = await fetch('http://localhost:8000/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: inputText.trim() }),
+        });
+        const data = await response.json();
         setMessages((prevMessages: Message[]) => [
           ...prevMessages,
-          { id: (Date.now() + 1).toString(), text: `Echo: ${inputText.trim()}`, sender: 'other' },
+          { id: (Date.now() + 1).toString(), text: data.message, sender: 'other' },
         ]);
+      } catch (error) {
+        console.error('Error sending message:', error);
+        setMessages((prevMessages: Message[]) => [
+          ...prevMessages,
+          { id: (Date.now() + 1).toString(), text: 'Error: Could not connect to server.', sender: 'other' },
+        ]);
+      } finally {
         if (flatListRef.current) {
           flatListRef.current.scrollToEnd({ animated: true });
         }
-      }, 1000);
+      }
     }
   }, [inputText]);
 
@@ -88,7 +103,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e', // Dark background for contrast
+    backgroundColor: '#E0FFE0', // Light green background
   },
   backgroundGradient: {
     position: 'absolute',
@@ -96,7 +111,7 @@ const styles = StyleSheet.create({
     height: '100%',
     // Example of a subtle radial gradient, adjust as needed
     // You might need a library like 'react-native-linear-gradient' for more complex gradients
-    backgroundColor: 'radial-gradient(circle at top left, #3a3a5a, #1a1a2e)',
+    backgroundColor: 'radial-gradient(circle at top left, #C0FFC0, #E0FFE0)', // Lighter green gradient
     opacity: 0.8,
   },
   messagesList: {
@@ -124,7 +139,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   messageText: {
-    color: '#E0E0E0', // Light text on dark blur
+    color: '#FFFFFF', // White text for contrast
     fontSize: 16,
   },
   inputArea: {
