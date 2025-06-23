@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Keyboard
 import { BlurView } from 'expo-blur';
 import Constants from 'expo-constants';
 import { FlatList as RNFlatList } from 'react-native'; // Import FlatList with a different name to avoid conflict
+import { useRouter } from 'expo-router';
 
 interface Message {
   id: string;
@@ -63,6 +64,12 @@ export default function ChatScreen() {
     </View>
   ), []);
 
+  const router = useRouter();
+
+  const goToUploadPage = useCallback(() => {
+    router.push('/upload');
+  }, [router]);
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -96,6 +103,10 @@ export default function ChatScreen() {
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </BlurView>
+
+      <TouchableOpacity style={styles.uploadButton} onPress={goToUploadPage}>
+        <Text style={styles.uploadButtonText}>Go to Upload Page</Text>
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }
@@ -177,6 +188,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sendButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  uploadButton: {
+    backgroundColor: 'rgba(100, 149, 237, 0.7)', // CornflowerBlue with some transparency
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+  },
+  uploadButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
